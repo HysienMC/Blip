@@ -197,7 +197,15 @@ def status():
 
 def run_flask():
     """Function to run the Flask web server in a separate thread"""
-    app.run(host="0.0.0.0", port=8080)
+    try:
+        # Try running Flask on port 8080, but handle the case where it's already in use
+        app.run(host="0.0.0.0", port=8080, use_reloader=False)  # use_reloader=False avoids multiple instances of Flask
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print("Port 8080 is already in use, trying port 5000...")
+            app.run(host="0.0.0.0", port=5000, use_reloader=False)  # Fallback to another port if 8080 is busy
+        else:
+            raise e
 
 
 bot_start_time = time.time()
