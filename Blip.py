@@ -35,7 +35,7 @@ BASE_URL = "https://v6.exchangerate-api.com/v6"
 # Define log file first before using it
 LOG_FILE = 'bot_logs.log'
 
-load_dotenv()
+load_dotenv(dotenv_path='templates/.env')
 
 discord_token = os.getenv("DISCORD_TOKEN")
 
@@ -1622,42 +1622,36 @@ async def debug_logger():
             print(error_message)  # Send to terminal
         await asyncio.sleep(1)  # Run every second
 
-# Main bot runner
 async def main():
     """Main asynchronous entry point for the bot."""
-    
-    # Check if token is available
-    if not discord_token:
-        raise ValueError("Discord token is missing in .env file.")  # Raise error if token is missing
-    
-    async with bot:
-        start_message = "Starting bot..."
-        logging.info(start_message)
-        print(start_message)  # Send to terminal
+    # Log starting message
+    start_message = "Starting bot..."
+    logging.info(start_message)
+    print(start_message)  # Send to terminal
 
-        await load_extensions()  # Load extensions
-        bot.loop.create_task(debug_logger())  # Start debug logger task
+    await load_extensions()  # Load extensions
+    bot.loop.create_task(debug_logger())  # Start debug logger task
 
-        try:
-            # Start the bot with the token from the .env file
-            await bot.start(discord_token)
-        except discord.LoginFailure:
-            critical_message = "Invalid token provided. Please check your bot token."
-            logging.critical(critical_message)
-            print(critical_message)  # Send to terminal
-        except discord.HTTPException as e:
-            http_error_message = f"HTTP error occurred: {e}"
-            logging.critical(http_error_message)
-            print(http_error_message)  # Send to terminal
-        except ValueError as e:
-            # Handle missing token
-            logging.error(f"Error: {e}")
-            print(f"Error: {e}")
-        except Exception as e:
-            unexpected_error_message = f"Unexpected error: {e}"
-            logging.error(unexpected_error_message)
-            print(unexpected_error_message)  # Send to terminal
-            await restart_bot()  # Restart the bot on failure
+    try:
+        # Start the bot with the token from the .env file
+        await bot.start(discord_token)
+    except discord.LoginFailure:
+        critical_message = "Invalid token provided. Please check your bot token."
+        logging.critical(critical_message)
+        print(critical_message)  # Send to terminal
+    except discord.HTTPException as e:
+        http_error_message = f"HTTP error occurred: {e}"
+        logging.critical(http_error_message)
+        print(http_error_message)  # Send to terminal
+    except ValueError as e:
+        # Handle missing token
+        logging.error(f"Error: {e}")
+        print(f"Error: {e}")
+    except Exception as e:
+        unexpected_error_message = f"Unexpected error: {e}"
+        logging.error(unexpected_error_message)
+        print(unexpected_error_message)  # Send to terminal
+        await restart_bot()  # Restart the bot on failure
 
 # Entry point for running the bot
 if __name__ == "__main__":
